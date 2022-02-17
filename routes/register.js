@@ -12,13 +12,11 @@ function sendMailToUser(host, id, email, response, user) {
 
         const transporter = nodemailer.createTransport({
             service: 'gmail', auth: {
-                //TODO: Replace credentials here
-                user: "promigos.enterprise@gmail.com", pass: "ThisIsAPassword123!"
+                user: process.env.EMAIL, pass: process.env.PASSWORD
             }
         });
 
         let mailOptions = {
-            //TODO: Replace email here
             from: "promidos.enterorist@gmail.com",
             to: email,
             subject: "Please confirm your email by clicking on this link, this link will expire in 15 minutes",
@@ -52,7 +50,7 @@ module.exports = router.post("/", async (request, response) => {
     const countryCode = request.body.countryCode
     const userLocation = request.body.userLocation
     const phoneValidationJWT = request.body.phoneValidationJWT //TODO: User firebase_admin
-    let userID = email
+    let userID = email //TODO: Replace with Firebase ID
 
 
     const verifyPassword = passwordStrength(password)
