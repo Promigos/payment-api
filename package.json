@@ -1,0 +1,27 @@
+{
+  "name": "amrita-events-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Payment API",
+  "main": "server.js",
+  "scripts": {
+    "run": "npx nodemon start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Soorya and Shwe",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "check-password-strength": "^2.0.4",
+    "dotenv": "^16.0.0",
+    "email-validator": "^2.0.4",
+    "express": "^4.17.2",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.2.1",
+    "nodemailer": "^6.7.2",
+    "nodemon": "^2.0.15"
+  },
+  "devDependencies": {
+    "decache": "^4.6.1"
+  }
+}
