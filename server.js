@@ -1,11 +1,11 @@
 const Express = require("express");
-require("./config/database_config")();
 const Register = require("./routes/register");
 const Login = require("./routes/login");
 const VerifyEmail = require("./routes/verify_account");
 const app = Express();
-
 app.use(Express.json());
+
+require("./config/database_config")();
 
 app.get("/", (request, response) => {
     response.status(200).send("Welcome to Payments API");
