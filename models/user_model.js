@@ -42,6 +42,7 @@ const UserSchema = new mongoose.Schema({
     phoneNumber: {
         type: String,
         required: true,
+        //TODO: Make phone number unique
     },
     defaultAccount: {
         type: String,

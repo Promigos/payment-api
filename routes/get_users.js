@@ -19,7 +19,8 @@ router.post("/", verify_auth, async (request, response) => {
             return {
                 userID: friendData._id,
                 name: friendData.name,
-                email: friendData.email
+                email: friendData.email,
+                phone: friendData.phoneNumber,
             }
         }))
         
