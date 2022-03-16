@@ -57,6 +57,15 @@ const UserSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    blocked: {
+        type: [String],
+    },
+    friends: {
+        type: [{
+            userID: String,
+            chatListID: String
+        }]
+    }
 });
 
 const UserTemporarySchema = new mongoose.Schema({

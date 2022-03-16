@@ -1,0 +1,53 @@
+const verify_auth = require('../middleware/verify_auth');
+const Express = require("express");
+const jwt = require("jsonwebtoken");
+const router = Express.Router();
+const {User} = require("../models/user_model");
+
+//import chat list model
+const {ChatListModel} = require("../models/chat_list");
+
+//TODO: Add middleware
+router.post("/", verify_auth, async (request, response) => {
+
+    const userId = request.user._id
+    const signedToken = request.body.token
+
+    if (!signedToken) {
+        return response.status(400).send("Attach Token")
+    }
+
+    try {
+        const decodedToken = jwt.verify(signedToken, process.env.JWT_SECRET_KEY);
+        console.log(userId, decodedToken)
+
+        if (userId === decodedToken._id) {
+            return response.status(400).send("Please don't scan yourself")
+        } else {
+            const user = await User.findById(userId)
+
+            if (user.friends.some(friend => friend.userID === decodedToken._id)) {
+                return response.status(400).send("Already scanned")
+            } else {
+                const newChatListModel = new ChatListModel({})
+                await newChatListModel.save().then(async (chatListModel) => {
+                    user.friends.push({userID: decodedToken._id, chatListID: chatListModel._id})
+                    await user.save()
+                    const otherUser = await User.findById(decodedToken._id)
+                    otherUser.friends = otherUser.friends.filter(friend => friend.userID !== userId)
+                    otherUser.friends.push({userID: userId, chatListID: chatListModel._id})
+                    await otherUser.save()
+                })
+                return response.status(200).send("Scanned")
+            }
+        }
+
+    } catch (e) {
+        return response.status(400).send("Invalid token")
+
+    }
+
+
+});
+
+module.exports = router;
