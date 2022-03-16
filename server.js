@@ -4,6 +4,9 @@ const Login = require("./routes/login");
 const VerifyEmail = require("./routes/verify_account");
 const QrRoute = require("./routes/get_qr_code")
 const AddUserQR = require("./routes/add_usr_qr")
+const AddChatMessage = require("./routes/chats")
+//user list
+const GetUsers = require("./routes/get_users")
 const app = Express();
 app.use(Express.json());
 
@@ -20,7 +23,8 @@ app.use("/login", Login);
 app.use("/verifyEmail", VerifyEmail);
 app.use("/qr", QrRoute)
 app.use("/addUserQR", AddUserQR)
-const qr = require('qr-image');
+app.use("/chats", AddChatMessage)
+app.use("/users", GetUsers)
 
 app.listen(3000);
 
