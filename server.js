@@ -7,6 +7,8 @@ const AddUserQR = require("./routes/add_usr_qr")
 const AddChatMessage = require("./routes/chats")
 //user list
 const GetUsers = require("./routes/get_users")
+//block
+const BlockUser = require("./routes/block_user")
 const app = Express();
 app.use(Express.json());
 
@@ -25,6 +27,7 @@ app.use("/qr", QrRoute)
 app.use("/addUserQR", AddUserQR)
 app.use("/chats", AddChatMessage)
 app.use("/users", GetUsers)
+app.use("/block", BlockUser)
 
 app.listen(3000);
 

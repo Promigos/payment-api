@@ -57,13 +57,14 @@ const UserSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
-    blocked: {
-        type: [String],
-    },
     friends: {
         type: [{
             userID: String,
-            chatListID: String
+            chatListID: String,
+            block: {
+                type: Boolean,
+                default: false,
+            },
         }]
     }
 });

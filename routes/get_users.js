@@ -10,17 +10,22 @@ router.post("/", verify_auth, async (request, response) => {
 
     try {
         const user = await User.findById(userId)
-        const friends = await Promise.all(user.friends.map(async friend => {
+
+        //return all friends who are not blocked
+        const friends = user.friends.filter(friend => !friend.block)
+
+        const friendsList = await Promise.all(friends.map(async friend => {
             const friendData = await User.findById(friend.userID)
-            console.log(friendData._id, friendData.name, friendData.email)
             return {
                 userID: friendData._id,
                 name: friendData.name,
                 email: friendData.email
             }
         }))
+        
+
         console.log(friends)
-        return response.status(200).send(friends)
+        return response.status(200).send(friendsList)
     }
     catch (e) {
         return response.status(412).send(e)
