@@ -5,6 +5,8 @@ const VerifyEmail = require("./routes/verify_account");
 const QrRoute = require("./routes/get_qr_code")
 const AddUserQR = require("./routes/add_usr_qr")
 const AddChatMessage = require("./routes/chats")
+const AddBankAccount = require("./routes/manage_bank_accounts")
+const ManageFunds = require("./routes/funds")
 //user list
 const GetUsers = require("./routes/get_users")
 //block
@@ -28,9 +30,8 @@ app.use("/addUserQR", AddUserQR)
 app.use("/chats", AddChatMessage)
 app.use("/users", GetUsers)
 app.use("/block", BlockUser)
-
-app.listen(3000);
-
+app.use("/bank", AddBankAccount)
+app.use("/funds", ManageFunds)
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

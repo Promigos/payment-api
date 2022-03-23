@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
+const BankAccountSchema = require("./account_model");
 require("dotenv").config();
+
 
 function generateKey() {
     let text = "";
@@ -67,6 +69,15 @@ const UserSchema = new mongoose.Schema({
                 default: false,
             },
         }]
+    },
+    //accounts
+    accounts: {
+        //account_model
+        type: [BankAccountSchema]
+    },
+    walletBalance: {
+        type: Number,
+        default: 0
     }
 });
 
