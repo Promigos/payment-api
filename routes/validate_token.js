@@ -18,6 +18,7 @@ router.post("/", VerifyAuth, async (request, response) => {
                 }
             })
         } else {
+
             return response.status(500).send({
                 message: "Failed to fetch user",
                 error: err
