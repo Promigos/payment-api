@@ -9,7 +9,7 @@ router.post("/", verify_auth, async (request, response) => {
     const receiverID = request.body.receiverID
 
     if (!receiverID) {
-        return response.status(400).send("Attach receiver ID")
+        return response.status(400).send({message: "Attach receiver ID"})
     }
 
     try {
@@ -17,21 +17,20 @@ router.post("/", verify_auth, async (request, response) => {
         const receiver = await User.findById(receiverID)
 
         if (!user.friends.some(friend => friend.userID === receiverID)) {
-            return response.status(400).send("You are not friends with this user")
+            return response.status(400).send({message: "You are not friends with this user"})
         }
-
-        if(!receiver.friends.some(friend => friend.userID === userId)) {
-            return response.status(400).send("This user is not your friend")
+        if (!receiver.friends.some(friend => friend.userID === userId)) {
+            return response.status(400).send({message: "This user is not your friend"})
         }
 
 
         //check if user and receiver are already blocked
-        if(user.friends.some(friend => friend.userID === receiverID && friend.block)) {
-            return response.status(400).send("You are already blocked with this user")
+        if (user.friends.some(friend => friend.userID === receiverID && friend.block)) {
+            return response.status(400).send({message: "You are already blocked with this user"})
         }
 
-        if(receiver.friends.some(friend => friend.userID === userId && friend.block)) {
-            return response.status(400).send("This user is already blocked with you")
+        if (receiver.friends.some(friend => friend.userID === userId && friend.block)) {
+            return response.status(400).send({message: "This user is already blocked with you"})
         }
 
         //block user
@@ -48,12 +47,10 @@ router.post("/", verify_auth, async (request, response) => {
         receiver.friends.push(receiverFriend)
         await receiver.save()
 
-        return response.status(200).send("User blocked")
-    }
-
-    catch (e) {
+        return response.status(200).send({message: "User blocked"})
+    } catch (e) {
         console.log(e)
-        return response.status(412).send(e)
+        return response.status(412).send({message: "Could not validate token", error: e})
     }
 })
 

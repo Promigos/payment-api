@@ -14,6 +14,7 @@ const BlockUser = require("./routes/block_user")
 const app = Express();
 app.use(Express.json());
 
+//TODO: Wrap response with {message: "Message"} json structure
 require("./config/database_config")();
 
 app.get("/", (request, response) => {

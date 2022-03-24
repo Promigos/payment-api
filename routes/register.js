@@ -52,7 +52,7 @@ module.exports = router.post("/", async (request, response) => {
     const phoneValidationJWT = request.body.phoneValidationJWT //TODO: User firebase_admin
     let userID = email //TODO: Replace with Firebase ID
 
-
+    //TODO: Remove error list
     const verifyPassword = passwordStrength(password)
     let errorList = []
     let errors = false

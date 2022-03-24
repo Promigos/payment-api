@@ -7,7 +7,6 @@ const {User} = require("../models/user_model");
 //import chat list model
 const {ChatListModel} = require("../models/chat_list");
 
-//TODO: Add middleware
 router.post("/", verify_auth, async (request, response) => {
 
     const userId = request.user._id
