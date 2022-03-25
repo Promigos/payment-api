@@ -27,16 +27,16 @@ function sendMailToUser(host, id, email, response, user) {
             if (error) {
                 console.log(error);
                 user.remove().then(r => console.log(r, "Failed to remove temporary instance"));
-                return response.status(500).send(error)
+                return response.status(500).send({message: error});
             } else {
                 console.log('Email sent: ' + info.response);
-                return response.status(200).send("Verification mail has been sent, please check your mail. The link will be valid for the next five minutes")
+                return response.status(200).send({message: "Verification mail has been sent, please check your mail. The link will be valid for the next five minutes"})
             }
         });
     } catch (e) {
         console.log(e)
         user.remove().then(r => console.log(r, "Failed to remove temporary instance"));
-        return response.status(500).send(e)
+        return response.status(500).send({message: e});
     }
 }
 
@@ -54,113 +54,77 @@ module.exports = router.post("/", async (request, response) => {
 
     //TODO: Remove error list
     const verifyPassword = passwordStrength(password)
-    let errorList = []
-    let errors = false
 
     if (!password) {
-        errors = true
-        errorList.push({
-            type: "password", error: `Please attach password`
-        })
+        response.status(400).send({message: "Please enter a password"})
     } else if (verifyPassword.id < 2) {
-        errors = true
-        errorList.push({
-            type: "password",
-            error: `Password strength: ${verifyPassword.value}, try setting a better password, use numbers and special characters`
-        })
+        response.status(400).send({message: "Password is too weak"})
     }
+
+
     if (!email) {
-        errors = true
-        errorList.push({
-            type: "email", error: `Please attach email`
-        })
+        response.status(400).send({message: "Please enter an email"})
 
     } else if (!emailValidator.validate(email)) {
-        errors = true
-        errorList.push({
-            type: "email", error: `Invalid email id`
-        })
 
+        return response.status(400).send({message: "Please enter a valid email"})
     }
     if (!phoneNumber) {
-        errors = true
-        errorList.push({
-            type: "phone", error: `Please attach phone number`
-        })
+        response.status(400).send({message: "Please enter a phone number"})
     }
     if (!countryCode) {
-        errors = true
-        errorList.push({
-            type: "country_code", error: `Please attach country code`
-        })
+        response.status(400).send({message: "Please enter a country code"})
     }
     if (!userLocation) {
-        errors = true
-        errorList.push({
-            type: "location", error: `Please attach location`
-        })
+        response.status(400).send({message: "Please enter a location"})
+
     }
     if (!name) {
-        errors = true
-        errorList.push({
-            type: "name", error: `Please attach name`
-        })
+        response.status(400).send({message: "Please enter a name"})
+
 
     } else if (name.length < 3) {
-        errors = true
-        errorList.push({
-            type: "name", error: `Name has to be at least three characters login`
+        response.status(400).send({message: "Name is too short"})
+
+
+    }
+
+    const checkExistingUser = await User.findOne({
+        email: email,
+    });
+
+    const checkExistingUserTemporary = await UserTemporary.findOne({
+        email: email,
+    });
+
+    if (checkExistingUser) return response.status(400)
+        .send({message: "User already exists"});
+    if (checkExistingUserTemporary) {
+        return response.status(400).send({message: "User already exists"});
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    let hashedPassword = await bcrypt.hash(password, salt);
+
+    let verificationToken = generateKey()
+
+    const createNewTemporaryInstance = new UserTemporary({
+        email: email,
+        name: name,
+        userID: userID, //TODO: Replace with Firebase ID
+        phoneNumber: phoneNumber,
+        countryCode: countryCode,
+        userLocation: userLocation,
+        password: hashedPassword,
+        emailVerificationToken: verificationToken
+    });
+
+
+    await createNewTemporaryInstance.save()
+        .then(user => sendMailToUser("http://localhost:8080", verificationToken, email, response, user))
+        .catch(err => {
+            return response.status(500).send({message: err})
         })
-    }
-
-    if (!errors) {
-
-        const checkExistingUser = await User.findOne({
-            email: email,
-        });
-
-        const checkExistingUserTemporary = await UserTemporary.findOne({
-            email: email,
-        });
-
-        if (checkExistingUser) return response.status(400)
-            .send([{
-                type: "email" +
-                    "", error: "User already exists!"
-            }]);
-        if (checkExistingUserTemporary) {
-            return response.status(400)
-                .send([{
-                    type: "email", error: "Verification link already sent! "
-                }]);
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        let hashedPassword = await bcrypt.hash(password, salt);
-
-        let verificationToken = generateKey()
-
-        const createNewTemporaryInstance = new UserTemporary({
-            email: email,
-            name: name,
-            userID: userID, //TODO: Replace with Firebase ID
-            phoneNumber: phoneNumber,
-            countryCode: countryCode,
-            userLocation: userLocation,
-            password: hashedPassword,
-            emailVerificationToken: verificationToken
-        });
-
-
-        await createNewTemporaryInstance.save()
-            .then(user => sendMailToUser(request.get("host"), verificationToken, email, response, user))
-            .catch(err => {
-                return response.status(500).send(err)
-            })
-
-    } else {
-        return response.status(500).send(errorList);
-    }
 })
 
 
