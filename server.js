@@ -11,6 +11,8 @@ const ManageFunds = require("./routes/funds")
 const GetUsers = require("./routes/get_users")
 //block
 const BlockUser = require("./routes/block_user")
+const ValidateToken = require("./routes/validate_token")
+const GetAccountNumbers = require("./routes/get_account_numbers")
 const app = Express();
 app.use(Express.json());
 
@@ -24,6 +26,7 @@ app.get("/", (request, response) => {
 const PORT = process.env.PORT || 8080;
 
 app.use("/register", Register);
+app.use("/validateToken", ValidateToken);
 app.use("/login", Login);
 app.use("/verifyEmail", VerifyEmail);
 app.use("/qr", QrRoute)
@@ -33,6 +36,7 @@ app.use("/users", GetUsers)
 app.use("/block", BlockUser)
 app.use("/bank", AddBankAccount)
 app.use("/funds", ManageFunds)
+app.use("/accounts", GetAccountNumbers)
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

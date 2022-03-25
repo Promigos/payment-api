@@ -16,6 +16,8 @@ router.post('/addFunds', verify_auth, async (request, response) => {
     //get account
     let account = request.body.account;
 
+    console.log(request.body, "REQUEST")
+
     //validate data
     if (!amount) {
         return response.status(400).send("Please fill in all fields");
@@ -28,7 +30,6 @@ router.post('/addFunds', verify_auth, async (request, response) => {
 
     //get user
     const user = await User.findById(userId);
-    console.log(user)
 
     //check if account is empty
     if (account === "") {
@@ -38,7 +39,6 @@ router.post('/addFunds', verify_auth, async (request, response) => {
 
     //get account from user using account
     const userAccount = user.accounts.find(acc => acc.account === account);
-    console.log(userAccount)
 
     if (!userAccount) {
         return response.status(400).send("Account does not exist");
@@ -46,7 +46,6 @@ router.post('/addFunds', verify_auth, async (request, response) => {
 
 
     //make post request to  process.env.BANK_URL + '/addAmount', body has account, cvv, expiry, amount
-    console.log(process.env.BANK_URL + '/bank/deductAmount')
     requestBank.post({
         url: process.env.BANK_URL + '/bank/deductAmount',
         json: {
@@ -63,7 +62,6 @@ router.post('/addFunds', verify_auth, async (request, response) => {
             return response.status(400).send("ERR");
         }
         //if res code is 200, add the funds to the user's walletBalance
-        console.log(res.statusCode)
         if (res.statusCode === 200) {
             user.walletBalance += amount;
             user.save().then((data) => {
@@ -113,7 +111,6 @@ router.post('/removeFunds', verify_auth, async (request, response) => {
 
     //get account from user using account
     const userAccount = user.accounts.find(acc => acc.account === account);
-    console.log(user)
 
     if (!userAccount) {
         return response.status(400).send("Account does not exist");
@@ -121,7 +118,6 @@ router.post('/removeFunds', verify_auth, async (request, response) => {
 
 
     //make post request to  process.env.BANK_URL + '/addAmount', body has account, cvv, expiry, amount
-    console.log(process.env.BANK_URL + '/bank/addAmount')
     requestBank.post({
         url: process.env.BANK_URL + '/bank/addAmount',
         json: {
@@ -164,7 +160,6 @@ router.post('/transferAmount', verify_auth, async (request, response) => {
     const userId = request.user._id
     const receiverId = request.body.receiverId //List of all users to transfer funds to
     const amount = request.body.amount
-    let account = request.body.account
     let splitAmount = request.body.splitAmount
 
     //validate receiverId
@@ -188,31 +183,19 @@ router.post('/transferAmount', verify_auth, async (request, response) => {
     }
 
     //get user
-    console.log(userId,"userId")
     const user = await User.findById(userId);
-    console.log(user)
 
-    //check if account is empty
-    if (account ==="") {
-        //if account is empty use default account
-        account = user.defaultAccount;
+    //check if user has enough funds
+    if (user.walletBalance < amount) {
+        return response.status(400).send("Insufficient funds");
     }
 
-    console.log(user)
-    //get account from user using account
-    const userAccount = user.accounts.find(acc => acc.account === account);
-    console.log(userAccount)
-
-    if (!userAccount) {
-        return response.status(400).send("Account does not exist");
-    }
 
     let finalPaymentAmount = amount
     let finalDeductionAmount = amount * receiverId.length
 
     if (splitAmount) {
         finalPaymentAmount = finalPaymentAmount / receiverId.length
-        console.log(finalPaymentAmount, splitAmount, receiverId.length, splitAmount / receiverId.length)
         finalDeductionAmount = amount
     }
 

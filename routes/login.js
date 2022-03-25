@@ -11,15 +11,15 @@ router.post("/", async (request, response) => {
 
     if (!isPhoneNumber) {
         if (!request.body.email) {
-            return response.status(400).send("Please attach email")
+            return response.status(400).send({message: "Please enter an email"})
 
         } else if (!emailValidator.validate(request.body.email)) {
-            return response.status(400).send("Invalid email ID")
+            return response.status(400).send({message: "Please enter a valid email"})
         }
     }
 
     if (!request.body.password) {
-        return response.status(400).send("Please attach password")
+        return response.status(400).send({message: "Please enter a password"})
     }
 
     let checkIfUserAvailable
@@ -30,17 +30,31 @@ router.post("/", async (request, response) => {
     }
 
     if (!checkIfUserAvailable)
-        return response.status(400).send("User not found, check email and try again");
+        return response.status(400).send({message: "User does not exist"})
 
     const PasswordCheck = await bcrypt.compare(
         request.body.password,
         checkIfUserAvailable.password
     );
     if (!PasswordCheck)
-        return response.status(403).send("Invalid password");
+        return response.status(403).send({message: "Incorrect password"});
 
     const token = checkIfUserAvailable.GenerateJwtToken();
-    response.status(200).send(token);
+    console.log({
+        message: "Login successful",
+        token: token,
+        name: checkIfUserAvailable.name,
+        role: checkIfUserAvailable.role,
+        dateRegistered: checkIfUserAvailable.dateRegistered,
+        email: checkIfUserAvailable.email,
+    })
+    response.status(200).send({
+        message: "Login successful",
+        token: token,
+        name: checkIfUserAvailable.name,
+        dateRegistered: checkIfUserAvailable.dateRegistered,
+        email: checkIfUserAvailable.email,
+    });
 });
 
 module.exports = router;

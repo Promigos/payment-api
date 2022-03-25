@@ -52,39 +52,39 @@ module.exports = router.post("/", async (request, response) => {
     const phoneValidationJWT = request.body.phoneValidationJWT //TODO: User firebase_admin
     let userID = email //TODO: Replace with Firebase ID
 
-    //TODO: Remove error list
-    const verifyPassword = passwordStrength(password)
+    console.log(request.body)
 
+    //TODO: Remove error list
     if (!password) {
-        response.status(400).send({message: "Please enter a password"})
-    } else if (verifyPassword.id < 2) {
-        response.status(400).send({message: "Password is too weak"})
+        return response.status(400).send({message: "Please enter a password"})
+    }
+    if(password.toString().length !== 6){
+        return response.status(400).send({message: "Password has to be 6 digits long"})
     }
 
-
     if (!email) {
-        response.status(400).send({message: "Please enter an email"})
+        return response.status(400).send({message: "Please enter an email"})
 
     } else if (!emailValidator.validate(email)) {
 
         return response.status(400).send({message: "Please enter a valid email"})
     }
     if (!phoneNumber) {
-        response.status(400).send({message: "Please enter a phone number"})
+        return response.status(400).send({message: "Please enter a phone number"})
     }
     if (!countryCode) {
-        response.status(400).send({message: "Please enter a country code"})
+        return response.status(400).send({message: "Please enter a country code"})
     }
     if (!userLocation) {
-        response.status(400).send({message: "Please enter a location"})
+        return response.status(400).send({message: "Please enter a location"})
 
     }
     if (!name) {
-        response.status(400).send({message: "Please enter a name"})
+        return response.status(400).send({message: "Please enter a name"})
 
 
     } else if (name.length < 3) {
-        response.status(400).send({message: "Name is too short"})
+        return response.status(400).send({message: "Name is too short"})
 
 
     }
