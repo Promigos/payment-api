@@ -11,7 +11,6 @@ module.exports = router.post("/", verify_auth, async (request, response) => {
     console.log(request.body)
 
     User.findById(id).then(user => {
-        console.log(user)
         if (!user) {
             return response.status(404).send("User not found");
         }

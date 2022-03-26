@@ -5,6 +5,7 @@ const router = require('express').Router();
 const requestBank = require('request');
 const verify_auth = require('../middleware/verify_auth');
 const {User} = require("../models/user_model");
+const {ChatListModel} = require("../models/chat_list");
 
 //create route called"addFunds" with verify_auth middleware
 router.post('/addFunds', verify_auth, async (request, response) => {
@@ -222,10 +223,32 @@ router.post('/transferAmount', verify_auth, async (request, response) => {
 
     //deduct finalDeductionAmount from user
     user.walletBalance -= finalDeductionAmount;
-    user.save().then((data) => {
+    user.save().then(async (data) => {
+
+        //add transaction to messages
+        const message = {
+            senderID: userId,
+            //TODO: Add message to all users when multiple is implememted
+            receiverID: receiverId[0],
+            message: finalPaymentAmount.toString(),
+            messageType: "transfer"
+        }
+
+        //get chatListID from user.friends
+        const chatListID = user.friends.find(friend => friend.userID === receiverId[0]).chatListID;
+        //get chatList
+        const chatList = await ChatListModel.findById(chatListID);
+        //add message to chatList
+        chatList.chats.push(message);
+        //save chatList
+        chatList.save().catch((e) => {
+                return response.status(400).send(e);
+            })
+
             return response.status(200).send("Funds deducted and transferred to all users");
         }
     ).catch((e) => {
+            console.log(e)
             return response.status(400).send(e);
         }
     );

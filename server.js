@@ -13,6 +13,8 @@ const GetUsers = require("./routes/get_users")
 const BlockUser = require("./routes/block_user")
 const ValidateToken = require("./routes/validate_token")
 const GetAccountNumbers = require("./routes/get_account_numbers")
+const ForgotPassword = require("./routes/forgot_password")
+const ForgotPasswordVerify = require("./routes/forgot_password_verify")
 const app = Express();
 app.use(Express.json());
 
@@ -37,6 +39,8 @@ app.use("/block", BlockUser)
 app.use("/bank", AddBankAccount)
 app.use("/funds", ManageFunds)
 app.use("/accounts", GetAccountNumbers)
+app.use("/forgotPassword", ForgotPassword);
+app.use("/forgotPasswordVerify", ForgotPasswordVerify);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

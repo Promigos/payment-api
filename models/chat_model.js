@@ -19,6 +19,11 @@ const ChatSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    messageType: {
+        type: String,
+        required: true,
+        default: "text"
+    },
 
 });
 
