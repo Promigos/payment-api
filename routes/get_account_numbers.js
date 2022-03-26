@@ -8,7 +8,10 @@ module.exports = router.post("/", verify_auth, async (request, response) => {
     //send response list of all bank account numbers of all users
     const id = request.user._id
 
+    console.log(request.body)
+
     User.findById(id).then(user => {
+        console.log(user)
         if (!user) {
             return response.status(404).send("User not found");
         }

@@ -44,7 +44,6 @@ router.post("/", async (request, response) => {
         message: "Login successful",
         token: token,
         name: checkIfUserAvailable.name,
-        role: checkIfUserAvailable.role,
         dateRegistered: checkIfUserAvailable.dateRegistered,
         email: checkIfUserAvailable.email,
     })
@@ -54,6 +53,7 @@ router.post("/", async (request, response) => {
         name: checkIfUserAvailable.name,
         dateRegistered: checkIfUserAvailable.dateRegistered,
         email: checkIfUserAvailable.email,
+        id: checkIfUserAvailable.id
     });
 });
 

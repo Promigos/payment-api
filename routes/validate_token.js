@@ -11,7 +11,6 @@ router.post("/", VerifyAuth, async (request, response) => {
                 message: "Token is valid",
                 data: {
                     name: user.name,
-                    role: user.role,
                     email: user.email,
                     userId: user.userId,
                     dateRegistered: user.dateRegistered

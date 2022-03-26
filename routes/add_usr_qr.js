@@ -13,7 +13,7 @@ router.post("/", verify_auth, async (request, response) => {
     const signedToken = request.body.token
 
     if (!signedToken) {
-        return response.status(400).send("Attach Token")
+        return response.status(400).send({message: "Attach Token"})
     }
 
     try {
@@ -21,28 +21,41 @@ router.post("/", verify_auth, async (request, response) => {
         console.log(userId, decodedToken)
 
         if (userId === decodedToken._id) {
-            return response.status(400).send("Please don't scan yourself")
+            return response.status(400).send({message: "Please don't scan yourself"})
         } else {
             const user = await User.findById(userId)
 
+            const otherUser = await User.findById(decodedToken._id)
+
             if (user.friends.some(friend => friend.userID === decodedToken._id)) {
-                return response.status(400).send("Already scanned")
+                return response.status(400).send({
+                    message: "Already scanned",
+                    userName: otherUser.name,
+                    id: otherUser.id,
+                    email: otherUser.email,
+                    phoneNumber: otherUser.phoneNumber
+                })
             } else {
                 const newChatListModel = new ChatListModel({})
                 await newChatListModel.save().then(async (chatListModel) => {
                     user.friends.push({userID: decodedToken._id, chatListID: chatListModel._id})
                     await user.save()
-                    const otherUser = await User.findById(decodedToken._id)
                     otherUser.friends = otherUser.friends.filter(friend => friend.userID !== userId)
                     otherUser.friends.push({userID: userId, chatListID: chatListModel._id})
                     await otherUser.save()
                 })
-                return response.status(200).send("Scanned")
+                return response.status(200).send({
+                    message: "Scanned",
+                    userName: otherUser.name,
+                    id: otherUser.id,
+                    email: otherUser.email,
+                    phoneNumber: otherUser.phoneNumber
+                })
             }
         }
 
     } catch (e) {
-        return response.status(400).send("Invalid token")
+        return response.status(400).send({message: "Invalid token", error: e})
 
     }
 

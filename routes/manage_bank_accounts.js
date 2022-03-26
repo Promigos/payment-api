@@ -19,22 +19,22 @@ router.post('/addAccount', verify_auth, async (request, response) => {
 
     //validate data
     if (!account || !cvv || !expiry) {
-        return response.status(400).send("Please fill in all fields");
+        return response.status(400).send({message: "Please fill in all fields"});
     }
 
     //validate account
     if (account.toString().length !== 16) {
-        return response.status(400).send("Please enter a valid account number");
+        return response.status(400).send({message: "Please enter a valid account number"});
     }
 
     //validate cvv
-    if (cvv.length !== 3) {
-        return response.status(400).send("Please enter a valid cvv");
+    if (cvv.toString().length !== 3) {
+        return response.status(400).send({message: "Please enter a valid cvv"});
     }
 
     //validate expiry
     if (expiry.length !== 4) {
-        return response.status(400).send("Please enter a valid expiry");
+        return response.status(400).send({message: "Please enter a valid expiry"});
     }
 
     //get user
@@ -46,7 +46,7 @@ router.post('/addAccount', verify_auth, async (request, response) => {
     for (let i = 0; i < accounts.length; i++) {
         console.log(accounts[i])
         if (accounts[i].account === account) {
-            return response.status(400).send("Account already exists");
+            return response.status(400).send({message: "Account already exists"});
         }
     }
 
@@ -61,17 +61,17 @@ router.post('/addAccount', verify_auth, async (request, response) => {
     //add new account to user's accounts
     accounts.push(newAccount);
 
-    if(defaultAccount || !user.defaultAccount || user.defaultAccount === ""){
+    if (defaultAccount || !user.defaultAccount || user.defaultAccount === "") {
         user.defaultAccount = account;
     }
 
     //save user
     await user.save().then(() => {
-        return response.status(200).send(user);
-    }
+            return response.status(200).send(user);
+        }
     ).catch(error => {
-        return response.status(500).send(error);
-    }
+            return response.status(500).send(error);
+        }
     );
 });
 

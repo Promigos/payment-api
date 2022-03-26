@@ -65,15 +65,14 @@ router.post('/addFunds', verify_auth, async (request, response) => {
         if (res.statusCode === 200) {
             user.walletBalance += amount;
             user.save().then((data) => {
-                    return response.status(200).send("Funds added" );
+                    return response.status(200).send("Funds added");
                 }
             ).catch((e) => {
-                console.log(e,"ERR")
+                    console.log(e, "ERR")
                     return response.status(400).send("ERRR");
                 }
             );
-        }
-        else {
+        } else {
             return response.status(400).send(body);
         }
     });
@@ -104,7 +103,7 @@ router.post('/removeFunds', verify_auth, async (request, response) => {
     const user = await User.findById(userId);
 
     //check if account is empty
-    if (account ==="") {
+    if (account === "") {
         //if account is empty use default account
         account = user.defaultAccount;
     }
@@ -140,14 +139,13 @@ router.post('/removeFunds', verify_auth, async (request, response) => {
             }
             user.walletBalance -= amount;
             user.save().then((data) => {
-                    return response.status(200).send("Funds deducted" );
+                    return response.status(200).send("Funds deducted");
                 }
             ).catch((e) => {
                     return response.status(400).send(e);
                 }
             );
-        }
-        else {
+        } else {
             return response.status(400).send(body);
         }
     });
@@ -201,13 +199,12 @@ router.post('/transferAmount', verify_auth, async (request, response) => {
 
     //iterate receiverId and check database for each user and also check if id is not of same user
     for (let i = 0; i < receiverId.length; i++) {
-        try{
+        try {
             const receiver = await User.findById(receiverId[i]);
             if (!receiver || receiverId[i] === userId) {
                 return response.status(400).send("Invalid receiver found");
             }
-        }
-        catch (e){
+        } catch (e) {
             return response.status(400).send("Invalid receiver found, please check user ID");
         }
     }
@@ -226,12 +223,28 @@ router.post('/transferAmount', verify_auth, async (request, response) => {
     //deduct finalDeductionAmount from user
     user.walletBalance -= finalDeductionAmount;
     user.save().then((data) => {
-            return response.status(200).send("Funds deducted and transferred to all users" );
+            return response.status(200).send("Funds deducted and transferred to all users");
         }
     ).catch((e) => {
             return response.status(400).send(e);
         }
     );
+})
+
+router.post('/getBalance', verify_auth, async (request, response) => {
+
+    const userId = request.user._id
+
+    //validate receiverId
+    const user = await User.findById(userId);
+
+    if (!user) {
+        return response.status(200).send({message: "User not found"});
+
+    } else {
+        return response.status(200).send({message: "Bank balance data found", data: user.walletBalance});
+    }
+
 })
 
 //TODO: Add request money from other users
