@@ -79,7 +79,7 @@ const UserSchema = new mongoose.Schema({
     walletBalance: {
         type: Number,
         default: 0
-    }
+    },
 });
 
 const UserTemporarySchema = new mongoose.Schema({
