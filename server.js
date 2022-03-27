@@ -7,15 +7,15 @@ const AddUserQR = require("./routes/add_usr_qr")
 const AddChatMessage = require("./routes/chats")
 const AddBankAccount = require("./routes/manage_bank_accounts")
 const ManageFunds = require("./routes/funds")
-//user list
 const GetUsers = require("./routes/get_users")
-//block
 const BlockUser = require("./routes/block_user")
 const ValidateToken = require("./routes/validate_token")
 const GetAccountNumbers = require("./routes/get_account_numbers")
 const ForgotPassword = require("./routes/forgot_password")
 const ForgotPasswordVerify = require("./routes/forgot_password_verify")
 const ValidatePassword = require("./routes/validate_password")
+const ChangePassword = require("./routes/change_password")
+
 const app = Express();
 app.use(Express.json());
 
@@ -42,7 +42,8 @@ app.use("/funds", ManageFunds)
 app.use("/accounts", GetAccountNumbers)
 app.use("/forgotPassword", ForgotPassword);
 app.use("/forgotPasswordVerify", ForgotPasswordVerify);
-app.use("/validatePassword", ValidatePassword);
+app.use("/changePassword", ChangePassword);
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

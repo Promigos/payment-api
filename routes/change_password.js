@@ -1,4 +1,3 @@
-//get modules needed to change password, user model express and route
 const express = require('express');
 const router = express.Router();
 const {generateKey, User} = require('../models/user_model');
