@@ -45,6 +45,7 @@ router.post("/", async (request, response) => {
         token: token,
         name: checkIfUserAvailable.name,
         dateRegistered: checkIfUserAvailable.dateRegistered,
+        phoneNumber: checkIfUserAvailable.phoneNumber,
         email: checkIfUserAvailable.email,
     })
     response.status(200).send({
@@ -53,6 +54,7 @@ router.post("/", async (request, response) => {
         name: checkIfUserAvailable.name,
         dateRegistered: checkIfUserAvailable.dateRegistered,
         email: checkIfUserAvailable.email,
+        phoneNumber: checkIfUserAvailable.phoneNumber,
         id: checkIfUserAvailable.id
     });
 });
