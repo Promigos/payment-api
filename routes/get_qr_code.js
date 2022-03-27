@@ -8,7 +8,6 @@ const router = Express.Router();
 router.post("/", verify_auth, async (request, response) => {
 
     const code = qr.image(jwt.sign({_id: request.user._id}, process.env.JWT_SECRET_KEY), {type: 'svg'});
-    console.log(jwt.sign({_id: request.user._id}, process.env.JWT_SECRET_KEY))
     response.type('svg');
     code.pipe(response);
 });
