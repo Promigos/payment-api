@@ -43,6 +43,7 @@ app.use("/accounts", GetAccountNumbers)
 app.use("/forgotPassword", ForgotPassword);
 app.use("/forgotPasswordVerify", ForgotPasswordVerify);
 app.use("/changePassword", ChangePassword);
+app.use("/validatePassword", ValidatePassword);
 
 
 app.listen(PORT, () => {
