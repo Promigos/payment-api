@@ -8,7 +8,7 @@ const nodemailer = require("nodemailer");
 
 function sendMailToUser(host, id, email, response, user) {
     try {
-        let link = "http://" + host + "/verifyEmail?id=" + id + "&email=" + email;
+        let link = "https://" + host + "/verifyEmail?id=" + id + "&email=" + email;
 
         const transporter = nodemailer.createTransport({
             service: 'gmail', auth: {
@@ -118,7 +118,7 @@ module.exports = router.post("/", async (request, response) => {
 
 
     await createNewTemporaryInstance.save()
-        .then(user => sendMailToUser("https://wallet-up-api.herokuapp.com", verificationToken, email, response, user))
+        .then(user => sendMailToUser("wallet-up-api.herokuapp.com", verificationToken, email, response, user))
         .catch(err => {
             return response.status(500).send({message: err})
         })
