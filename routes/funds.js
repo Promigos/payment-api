@@ -264,9 +264,11 @@ router.post('/getBalance', verify_auth, async (request, response) => {
     const user = await User.findById(userId);
 
     if (!user) {
+        console.log(user, "user not found")
         return response.status(200).send({message: "User not found"});
 
     } else {
+        console.log(user, "Wallet data")
         return response.status(200).send({message: "Bank balance data found", data: user.walletBalance});
     }
 
