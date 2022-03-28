@@ -58,7 +58,7 @@ module.exports = router.post("/", async (request, response) => {
     if (!password) {
         return response.status(400).send({message: "Please enter a password"})
     }
-    if(password.toString().length !== 6){
+    if (password.toString().length !== 6) {
         return response.status(400).send({message: "Password has to be 6 digits long"})
     }
 
@@ -121,7 +121,7 @@ module.exports = router.post("/", async (request, response) => {
 
 
     await createNewTemporaryInstance.save()
-        .then(user => sendMailToUser("http://localhost:8080", verificationToken, email, response, user))
+        .then(user => sendMailToUser("https://bank-api-pro-max.herokuapp.com/", verificationToken, email, response, user))
         .catch(err => {
             return response.status(500).send({message: err})
         })
