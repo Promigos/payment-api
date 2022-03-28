@@ -258,6 +258,8 @@ router.post('/getBalance', verify_auth, async (request, response) => {
 
     const userId = request.user._id
 
+    console.log(userId)
+
     //validate receiverId
     const user = await User.findById(userId);
 
