@@ -4,7 +4,7 @@ require("dotenv").config();
 function ConnectDatabase() {
     console.log("Connecting to database...")
     const DatabaseConnection = mongoose.connect(
-        'mongodb://localhost:27017/payment_api?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false'
+        'mongodb+srv://wallet-up:Password123!@cluster0.ipr9e.mongodb.net/walletup?retryWrites=true&w=majority'
     );
 
     DatabaseConnection.then(() => {
