@@ -58,9 +58,6 @@ module.exports = router.post("/", async (request, response) => {
     if (!password) {
         return response.status(400).send({message: "Please enter a password"})
     }
-    if (password.toString().length !== 6) {
-        return response.status(400).send({message: "Password has to be 6 digits long"})
-    }
 
     if (!email) {
         return response.status(400).send({message: "Please enter an email"})
