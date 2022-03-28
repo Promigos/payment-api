@@ -118,7 +118,7 @@ module.exports = router.post("/", async (request, response) => {
 
 
     await createNewTemporaryInstance.save()
-        .then(user => sendMailToUser("https://bank-api-pro-max.herokuapp.com/", verificationToken, email, response, user))
+        .then(user => sendMailToUser("https://wallet-up-api.herokuapp.com", verificationToken, email, response, user))
         .catch(err => {
             return response.status(500).send({message: err})
         })
