@@ -15,6 +15,31 @@ const ForgotPassword = require("./routes/forgot_password")
 const ForgotPasswordVerify = require("./routes/forgot_password_verify")
 const ValidatePassword = require("./routes/validate_password")
 const ChangePassword = require("./routes/change_password")
+const SetFirebaseToken = require("./routes/set_firebase_token")
+const {firebaseAdmin} = require("./config/firebase_config");
+
+//TODO: Use this for notifications using tokens for users
+// firebaseAdmin.messaging().send({
+//     notification: {
+//         title: "NODE JS",
+//         body: "NOTIFICATION",
+//     },
+//     token: "cbvcoF2oSfavoUdJnXjNHP:APA91bHmHT8UA9sGqMEH74CU5TqiNPvPtCoezrK5d0PjqV9UTkt22jDxHZ7Z4z4VXpeUZeVB2uvm2-hqHmV7osesV6upJFGuBDZ3xtqvdjNnd3nQ2LV9Xn57suAFpnyFcdEChsbGFjUb",
+//     android: {
+//         priority: "high",
+//     },
+//     // Add APNS (Apple) config
+//     apns: {
+//         payload: {
+//             aps: {
+//                 contentAvailable: true,
+//             },
+//         },
+//         headers: {
+//             "apns-topic": "io.flutter.plugins.firebase.messaging", // bundle identifier
+//         },
+//     },
+// }).then(r => console.log(r))
 
 const app = Express();
 app.use(Express.json());
@@ -44,6 +69,7 @@ app.use("/forgotPassword", ForgotPassword);
 app.use("/forgotPasswordVerify", ForgotPasswordVerify);
 app.use("/changePassword", ChangePassword);
 app.use("/validatePassword", ValidatePassword);
+app.use("/setToken", SetFirebaseToken);
 
 
 app.listen(PORT, () => {

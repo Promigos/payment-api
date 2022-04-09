@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const BankAccountSchema = require("./account_model");
 require("dotenv").config();
 
+//TODO: Store FCM token for each users
 
 function generateKey() {
     let text = "";
@@ -79,6 +80,9 @@ const UserSchema = new mongoose.Schema({
     walletBalance: {
         type: Number,
         default: 0
+    },
+    firebaseToken: {
+        type: String
     },
 });
 
