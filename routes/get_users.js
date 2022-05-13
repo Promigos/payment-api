@@ -10,7 +10,6 @@ router.post("/", verify_auth, async (request, response) => {
 
     try {
         const user = await User.findById(userId)
-
         //return all friends who are not blocked
         const friends = user.friends.filter(friend => !friend.block)
 
@@ -23,13 +22,14 @@ router.post("/", verify_auth, async (request, response) => {
                 phone: friendData.phoneNumber,
             }
         }))
-        
+
 
         console.log(friends)
         return response.status(200).send(friendsList)
     }
     catch (e) {
-        return response.status(412).send(e)
+        console.log(e)
+        return response.status(400).send(e)
     }
 
 })

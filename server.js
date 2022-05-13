@@ -4,6 +4,7 @@ const Login = require("./routes/login");
 const VerifyEmail = require("./routes/verify_account");
 const QrRoute = require("./routes/get_qr_code")
 const AddUserQR = require("./routes/add_usr_qr")
+const AddUserPhone = require("./routes/add_user_phone")
 const AddChatMessage = require("./routes/chats")
 const AddBankAccount = require("./routes/manage_bank_accounts")
 const ManageFunds = require("./routes/funds")
@@ -17,6 +18,8 @@ const ValidatePassword = require("./routes/validate_password")
 const ChangePassword = require("./routes/change_password")
 const SetFirebaseToken = require("./routes/set_firebase_token")
 const {firebaseAdmin} = require("./config/firebase_config");
+
+const SendEmail = require("./routes/test_mail")
 
 //TODO: Use this for notifications using tokens for users
 // firebaseAdmin.messaging().send({
@@ -59,6 +62,7 @@ app.use("/login", Login);
 app.use("/verifyEmail", VerifyEmail);
 app.use("/qr", QrRoute)
 app.use("/addUserQR", AddUserQR)
+app.use("/addUserPhone", AddUserPhone)
 app.use("/chats", AddChatMessage)
 app.use("/users", GetUsers)
 app.use("/block", BlockUser)
@@ -70,6 +74,7 @@ app.use("/forgotPasswordVerify", ForgotPasswordVerify);
 app.use("/changePassword", ChangePassword);
 app.use("/validatePassword", ValidatePassword);
 app.use("/setToken", SetFirebaseToken);
+app.use("/sendEmail", SendEmail)
 
 
 app.listen(PORT, () => {

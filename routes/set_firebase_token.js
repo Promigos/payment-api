@@ -4,7 +4,7 @@ const middleware = require("../middleware/verify_auth")
 const {User} = require("../models/user_model");
 
 router.post("/", middleware, (req, res) => {
-    const userId = req.user._id;
+    const userId = req.user._id
 
 
     const token = req.body.token

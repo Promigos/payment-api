@@ -1,19 +1,22 @@
 const Express = require("express");
 const router = Express.Router();
 const emailValidator = require("email-validator");
-const { User, generateKey } = require("../models/user_model");
+const {User, generateKey} = require("../models/user_model");
 const nodemailer = require("nodemailer");
-const { passwordStrength } = require("check-password-strength");
+const {passwordStrength} = require("check-password-strength");
 const bcrypt = require("bcrypt");
 
 function sendConfirmation(email, response) {
     try {
         const transporter = nodemailer.createTransport({
-            service: 'gmail', auth: {
-                user: process.env.EMAIL, pass: process.env.PASSWORD
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true, // use SSL
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.PASSWORD
             }
         });
-
         let mailOptions = {
             from: process.env.EMAIL,
             to: email,
@@ -52,7 +55,7 @@ router.post("/", async (request, response) => {
     const forgotPasswordCode = request.body.forgotPasswordCode
 
     //get userdata using email
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({email: email});
 
     //return if user not found
     if (!user) {

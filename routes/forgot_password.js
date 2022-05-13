@@ -1,17 +1,20 @@
 const Express = require("express");
 const router = Express.Router();
 const emailValidator = require("email-validator");
-const { User, generateKey } = require("../models/user_model");
+const {User, generateKey} = require("../models/user_model");
 const nodemailer = require("nodemailer");
 
 function sendPasswordCode(email, code, response) {
     try {
         const transporter = nodemailer.createTransport({
-            service: 'gmail', auth: {
-                user: process.env.EMAIL, pass: process.env.PASSWORD
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true, // use SSL
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.PASSWORD
             }
         });
-
         let mailOptions = {
             from: process.env.EMAIL,
             to: email,

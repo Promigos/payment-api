@@ -6,6 +6,31 @@ const requestBank = require('request');
 const verify_auth = require('../middleware/verify_auth');
 const {User} = require("../models/user_model");
 const {ChatListModel} = require("../models/chat_list");
+const {firebaseAdmin} = require("../config/firebase_config");
+
+function sendNotification(token, title, body) {
+    firebaseAdmin.messaging().send({
+        notification: {
+            title: title,
+            body: body,
+        },
+        token: token,
+        android: {
+            priority: "high",
+        },
+        // Add APNS (Apple) config
+        apns: {
+            payload: {
+                aps: {
+                    contentAvailable: true,
+                },
+            },
+            headers: {
+                "apns-topic": "io.flutter.plugins.firebase.messaging", // bundle identifier
+            },
+        },
+    }).then(r => console.log(r))
+}
 
 //create route called"addFunds" with verify_auth middleware
 router.post('/addFunds', verify_auth, async (request, response) => {
@@ -31,7 +56,6 @@ router.post('/addFunds', verify_auth, async (request, response) => {
 
     //get user
     const user = await User.findById(userId);
-
     //check if account is empty
     if (account === "") {
         //if account is empty use default account
@@ -66,6 +90,9 @@ router.post('/addFunds', verify_auth, async (request, response) => {
         if (res.statusCode === 200) {
             user.walletBalance += amount;
             user.save().then((data) => {
+                    const token = user.firebaseToken
+                    console.log("User firebase token: ", token)
+                    sendNotification(token, "Funds added", `${amount} coins has been added to your account!`)
                     return response.status(200).send("Funds added");
                 }
             ).catch((e) => {
@@ -140,6 +167,9 @@ router.post('/removeFunds', verify_auth, async (request, response) => {
             }
             user.walletBalance -= amount;
             user.save().then((data) => {
+                    const token = user.firebaseToken
+                    console.log("User firebase token: ", token)
+                    sendNotification(token, "Funds deducted", `${amount} coins has been deducted to your account!`)
                     return response.status(200).send("Funds deducted");
                 }
             ).catch((e) => {
@@ -186,6 +216,9 @@ router.post('/transferAmount', verify_auth, async (request, response) => {
 
     //check if user has enough funds
     if (user.walletBalance < amount) {
+        const token = user.firebaseToken
+        console.log("User firebase token: ", token)
+        sendNotification(token, "Insufficient funds", `Insufficient funds, please add funds to continue WalletUping' your pals!`)
         return response.status(400).send("Insufficient funds");
     }
 
@@ -225,26 +258,28 @@ router.post('/transferAmount', verify_auth, async (request, response) => {
     user.walletBalance -= finalDeductionAmount;
     user.save().then(async (data) => {
 
-        //add transaction to messages
-        const message = {
-            senderID: userId,
-            //TODO: Add message to all users when multiple is implememted
-            receiverID: receiverId[0],
-            message: finalPaymentAmount.toString(),
-            messageType: "transfer"
-        }
+            //add transaction to messages
+            const message = {
+                senderID: userId,
+                //TODO: Add message to all users when multiple is implememted
+                receiverID: receiverId[0],
+                message: finalPaymentAmount.toString(),
+                messageType: "transfer"
+            }
 
-        //get chatListID from user.friends
-        const chatListID = user.friends.find(friend => friend.userID === receiverId[0]).chatListID;
-        //get chatList
-        const chatList = await ChatListModel.findById(chatListID);
-        //add message to chatList
-        chatList.chats.push(message);
-        //save chatList
-        chatList.save().catch((e) => {
+            //get chatListID from user.friends
+            const chatListID = user.friends.find(friend => friend.userID === receiverId[0]).chatListID;
+            //get chatList
+            const chatList = await ChatListModel.findById(chatListID);
+            //add message to chatList
+            chatList.chats.push(message);
+            //save chatList
+            chatList.save().catch((e) => {
                 return response.status(400).send(e);
             })
-
+            const token = user.firebaseToken
+            console.log("User firebase token: ", token)
+            sendNotification(token, "Funds transferred", `${amount} coins has been transferred successfully!!`)
             return response.status(200).send("Funds deducted and transferred to all users");
         }
     ).catch((e) => {
@@ -268,7 +303,6 @@ router.post('/getBalance', verify_auth, async (request, response) => {
         return response.status(200).send({message: "User not found"});
 
     } else {
-        console.log(user, "Wallet data")
         return response.status(200).send({message: "Bank balance data found", data: user.walletBalance});
     }
 

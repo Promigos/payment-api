@@ -70,6 +70,10 @@ const UserSchema = new mongoose.Schema({
                 type: Boolean,
                 default: false,
             },
+            blockedByYou: {
+                type: Boolean,
+                default: false,
+            },
         }]
     },
     //accounts

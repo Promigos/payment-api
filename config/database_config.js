@@ -3,8 +3,13 @@ require("dotenv").config();
 
 function ConnectDatabase() {
     console.log("Connecting to database...")
+    /**
+     * Local Server: mongodb://localhost:27017/payment_api?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false
+     * Remote Server: mongodb+srv://wallet-up:Password123!@cluster0.ipr9e.mongodb.net/walletup?retryWrites=true&w=majority
+     * @type {Promise<Mongoose>}
+     */
     const DatabaseConnection = mongoose.connect(
-        'mongodb+srv://wallet-up:Password123!@cluster0.ipr9e.mongodb.net/walletup?retryWrites=true&w=majority'
+        'mongodb://localhost:27017/payment_api?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false'
     );
 
     DatabaseConnection.then(() => {
