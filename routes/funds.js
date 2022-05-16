@@ -332,7 +332,7 @@ router.post('/getBalance', verify_auth, async (request, response) => {
 
 })
 
-router.post("/getTransactionLogs", verify_auth, async (request, response) => {
+router.get("/getTransactionLogs", verify_auth, async (request, response) => {
 
     const userId = request.user._id
 
