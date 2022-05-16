@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const BankAccountSchema = require("./account_model");
+const TransactionSchema = require("./transaction_data")
 require("dotenv").config();
 
 //TODO: Store FCM token for each users
@@ -78,8 +79,10 @@ const UserSchema = new mongoose.Schema({
     },
     //accounts
     accounts: {
-        //account_model
         type: [BankAccountSchema]
+    },
+    transactionLogs: {
+        type: [TransactionSchema]
     },
     walletBalance: {
         type: Number,

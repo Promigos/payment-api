@@ -7,6 +7,7 @@ const verify_auth = require('../middleware/verify_auth');
 const {User} = require("../models/user_model");
 const {ChatListModel} = require("../models/chat_list");
 const {firebaseAdmin} = require("../config/firebase_config");
+const {response} = require("express");
 
 function sendNotification(token, title, body) {
     firebaseAdmin.messaging().send({
@@ -32,6 +33,23 @@ function sendNotification(token, title, body) {
     }).then(r => console.log(r))
 }
 
+function addTransactionLog(user, sender, receiver, amount, type){
+    if (user.transactionLogs === undefined) {
+        user.transactionLogs = []
+    }
+
+    const transactionLog = {
+        sender: sender,
+        receiver: receiver,
+        amount: amount,
+        type: type
+    }
+
+    user.transactionLogs.push(transactionLog)
+
+    return user
+}
+
 //create route called"addFunds" with verify_auth middleware
 router.post('/addFunds', verify_auth, async (request, response) => {
     //get user id from request
@@ -55,7 +73,7 @@ router.post('/addFunds', verify_auth, async (request, response) => {
     }
 
     //get user
-    const user = await User.findById(userId);
+    let user = await User.findById(userId);
     //check if account is empty
     if (account === "") {
         //if account is empty use default account
@@ -89,6 +107,9 @@ router.post('/addFunds', verify_auth, async (request, response) => {
         //if res code is 200, add the funds to the user's walletBalance
         if (res.statusCode === 200) {
             user.walletBalance += amount;
+
+            user = addTransactionLog(user, userId, "", amount, "DEPOSIT")
+
             user.save().then((data) => {
                     const token = user.firebaseToken
                     console.log("User firebase token: ", token)
@@ -96,7 +117,7 @@ router.post('/addFunds', verify_auth, async (request, response) => {
                     return response.status(200).send("Funds added");
                 }
             ).catch((e) => {
-                    console.log(e, "ERR")
+                    console.log(e, "ERR", )
                     return response.status(400).send("ERRR");
                 }
             );
@@ -128,7 +149,7 @@ router.post('/removeFunds', verify_auth, async (request, response) => {
     }
 
     //get user
-    const user = await User.findById(userId);
+    let user = await User.findById(userId);
 
     //check if account is empty
     if (account === "") {
@@ -166,6 +187,9 @@ router.post('/removeFunds', verify_auth, async (request, response) => {
                 return response.status(400).send("Insufficient funds");
             }
             user.walletBalance -= amount;
+
+            user = addTransactionLog(user, userId, "", amount, "WITHDRAW")
+
             user.save().then((data) => {
                     const token = user.firebaseToken
                     console.log("User firebase token: ", token)
@@ -212,7 +236,7 @@ router.post('/transferAmount', verify_auth, async (request, response) => {
     }
 
     //get user
-    const user = await User.findById(userId);
+    let user = await User.findById(userId);
 
     //check if user has enough funds
     if (user.walletBalance < amount) {
@@ -245,8 +269,10 @@ router.post('/transferAmount', verify_auth, async (request, response) => {
 
     //iterate and update each user funds with finalPaymentAmount
     for (let i = 0; i < receiverId.length; i++) {
-        const receiver = await User.findById(receiverId[i]);
+        let receiver = await User.findById(receiverId[i]);
         receiver.walletBalance += finalPaymentAmount;
+        receiver = addTransactionLog(receiver, userId, receiverId[i], finalPaymentAmount, "RECEIVE")
+        user = addTransactionLog(user, userId, receiverId[i], finalPaymentAmount, "SEND")
         receiver.save()
             .catch((e) => {
                     return response.status(400).send(e);
@@ -293,8 +319,6 @@ router.post('/getBalance', verify_auth, async (request, response) => {
 
     const userId = request.user._id
 
-    console.log(userId, "GOT DATA FROM PHONE")
-
     //validate receiverId
     const user = await User.findById(userId);
 
@@ -305,6 +329,24 @@ router.post('/getBalance', verify_auth, async (request, response) => {
     } else {
         return response.status(200).send({message: "Bank balance data found", data: user.walletBalance});
     }
+
+})
+
+router.post("/getTransactionLogs", verify_auth, async (request, response) => {
+
+    const userId = request.user._id
+
+    //validate receiverId
+    const user = await User.findById(userId);
+
+    if (!user) {
+        console.log(user, "user not found")
+        return response.status(200).send({message: "User not found"});
+
+    } else {
+        return response.status(200).send({message: "Bank balance data found", data: user.transactionLogs});
+    }
+
 
 })
 
