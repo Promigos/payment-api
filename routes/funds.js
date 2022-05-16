@@ -332,19 +332,27 @@ router.post('/getBalance', verify_auth, async (request, response) => {
 
 })
 
-router.get("/getTransactionLogs", verify_auth, async (request, response) => {
+router.get("/getTransactionLogs/:userID", async (request, response) => {
 
-    const userId = request.user._id
+    const userId = request.params.userID
 
-    //validate receiverId
-    const user = await User.findById(userId);
+    try{
+        //validate receiverId
+        const user = await User.findById(userId);
 
-    if (!user) {
-        console.log(user, "user not found")
-        return response.status(200).send({message: "User not found"});
+        if (!user) {
+            console.log(user, "user not found")
+            return response.status(400).send({message: "User not found"});
 
-    } else {
-        return response.status(200).send({message: "Bank balance data found", data: user.transactionLogs});
+        } else {
+            return response.status(200).send({message: "Bank balance data found", data: user.transactionLogs});
+        }
+    }
+    catch (e){
+        console.log(e)
+        return response.status(400).send({message: "Something went wrong", error: e});
+
+
     }
 
 
