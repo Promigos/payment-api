@@ -58,87 +58,95 @@ module.exports = router.post("/", async (request, response) => {
 
     console.log(request.body)
 
-    getAuth()
-        .verifyIdToken(phoneValidationJWT)
-        .then(async (decodedToken) => {
+    if (!phoneValidationJWT) {
+        response.status(400).send({message: "Please attach JWT"})
+    }
 
-            const userID = decodedToken.uid;
-            const phoneNumber = decodedToken.phone_number
+    if (!password) {
+        return response.status(400).send({message: "Please enter a password"})
+    }
 
-            if (!password) {
-                return response.status(400).send({message: "Please enter a password"})
-            }
+    if (!email) {
+        return response.status(400).send({message: "Please enter an email"})
 
-            if (!email) {
-                return response.status(400).send({message: "Please enter an email"})
+    } else if (!emailValidator.validate(email)) {
 
-            } else if (!emailValidator.validate(email)) {
+        return response.status(400).send({message: "Please enter a valid email"})
+    }
 
-                return response.status(400).send({message: "Please enter a valid email"})
-            }
-            // if (!phoneNumber) {
-            //     return response.status(400).send({message: "Please enter a phone number"})
-            // }
-            if (!countryCode) {
-                return response.status(400).send({message: "Please enter a country code"})
-            }
-            if (!userLocation) {
-                return response.status(400).send({message: "Please enter a location"})
+    if (!countryCode) {
+        return response.status(400).send({message: "Please enter a country code"})
+    }
+    if (!userLocation) {
+        return response.status(400).send({message: "Please enter a location"})
 
-            }
-            if (!name) {
-                return response.status(400).send({message: "Please enter a name"})
+    }
+    if (!name) {
+        return response.status(400).send({message: "Please enter a name"})
+
+    } else if (name.length < 3) {
+        return response.status(400).send({message: "Name is too short"})
+
+    } else if (/\d/.test(name)) {
+        return response.status(400).send({message: "Name cannot have numbers"})
+    }
+
+    try {
+        getAuth()
+            .verifyIdToken(phoneValidationJWT)
+            .then(async (decodedToken) => {
+
+                const userID = decodedToken.uid;
+                const phoneNumber = decodedToken.phone_number
+
+                const checkExistingUser = await User.findOne({
+                    email: email,
+                });
+
+                const checkExistingUserTemporary = await UserTemporary.findOne({
+                    email: email,
+                });
+
+                if (checkExistingUser) return response.status(400)
+                    .send({message: "User already exists"});
+                if (checkExistingUserTemporary) {
+                    return response.status(400).send({message: "User already exists"});
+                }
+
+                const salt = await bcrypt.genSalt(10);
+                let hashedPassword = await bcrypt.hash(password, salt);
+
+                let verificationToken = generateKey()
+
+                const createNewTemporaryInstance = new UserTemporary({
+                    email: email,
+                    name: name,
+                    userID: userID, //TODO: Replace with Firebase ID
+                    phoneNumber: phoneNumber,
+                    countryCode: countryCode,
+                    userLocation: userLocation,
+                    password: hashedPassword,
+                    emailVerificationToken: verificationToken
+                });
 
 
-            } else if (name.length < 3) {
-                return response.status(400).send({message: "Name is too short"})
-            }
+                await createNewTemporaryInstance.save()
+                    .then(user => sendMailToUser("wallet-up-api.herokuapp.com", verificationToken, email, response, user))
+                    .catch(err => {
+                        return response.status(500).send({message: err})
+                    })
 
-            const checkExistingUser = await User.findOne({
-                email: email,
+            })
+            .catch((error) => {
+                console.log(error);
+                //return error
+                response.status(400).json({
+                    message: "Invalid firebase token",
+                });
             });
-
-            const checkExistingUserTemporary = await UserTemporary.findOne({
-                email: email,
-            });
-
-            if (checkExistingUser) return response.status(400)
-                .send({message: "User already exists"});
-            if (checkExistingUserTemporary) {
-                return response.status(400).send({message: "User already exists"});
-            }
-
-            const salt = await bcrypt.genSalt(10);
-            let hashedPassword = await bcrypt.hash(password, salt);
-
-            let verificationToken = generateKey()
-
-            const createNewTemporaryInstance = new UserTemporary({
-                email: email,
-                name: name,
-                userID: userID, //TODO: Replace with Firebase ID
-                phoneNumber: phoneNumber,
-                countryCode: countryCode,
-                userLocation: userLocation,
-                password: hashedPassword,
-                emailVerificationToken: verificationToken
-            });
-
-
-            await createNewTemporaryInstance.save()
-                .then(user => sendMailToUser("wallet-up-api.herokuapp.com", verificationToken, email, response, user))
-                .catch(err => {
-                    return response.status(500).send({message: err})
-                })
-
-        })
-        .catch((error) => {
-            console.log(error);
-            //return error
-            response.status(400).json({
-                message: "Invalid firebase token",
-            });
-        });
+    } catch (e) {
+        response.status(400).send({message: "Something went wrong", error: e})
+    }
 
 
 })
